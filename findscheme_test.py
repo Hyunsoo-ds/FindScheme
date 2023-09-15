@@ -189,7 +189,7 @@ def ret(hash):
 deeplinks = []
 def adb(cmd):
     return subprocess.check_output(
-    "C:\\Users\\jeong.su\\cmder\\bin\\adb.exe %s" % cmd,
+    "C:\\Users\\jeong.su\\cmder\\bin\\adb.exe %s" % cmd, # adb 사용할 거면 자신의 컴퓨터의 adb.exe의 경로에 맞게 경로를 수정해줘야함!!!
     shell=True,
     stderr=subprocess.STDOUT
     )
@@ -214,7 +214,7 @@ if __name__ == "__main__":
     
     time.sleep(3)
     addr = "0.0.0.0:8012"
-    apk = "C:\FindScheme\com.nhn.android.search.apk"
+    apk = "C:\FindScheme\com.nhn.android.search.apk"    # APK 경로는 여기에서 설정!!!
     decompile_dir, _ = os.path.splitext(apk)
     print('decompile_dir:',decompile_dir)
     if not os.path.isdir(decompile_dir):
