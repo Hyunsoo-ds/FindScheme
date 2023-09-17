@@ -189,7 +189,7 @@ def ret(hash):
 deeplinks = []
 def adb(cmd):
     return subprocess.check_output(
-    "C:\\Users\\jeong.su\\cmder\\bin\\adb.exe %s" % cmd, # adb 사용할 거면 자신의 컴퓨터의 adb.exe의 경로에 맞게 경로를 수정해줘야함!!!
+    "C:\\adb\\platform-tools\\adb.exe %s" % cmd, # adb 사용할 거면 자신의 컴퓨터의 adb.exe의 경로에 맞게 경로를 수정해줘야함!!!
     shell=True,
     stderr=subprocess.STDOUT
     )
@@ -222,8 +222,8 @@ if __name__ == "__main__":
     with open(os.path.join(decompile_dir, "AndroidManifest.xml"), encoding="UTF8") as f:
         package = f.read().split("package=\"")[1].split("\"")[0]
     print ("package name:", package)
-    """if len(adb("shell pm list packages %s" % package)) == 0:
-        adb("install %s" % (apk)) """
+    if len(adb("shell pm list packages %s" % package)) == 0:
+        adb("install %s" % (apk)) 
     deeplinks = parse_scheme(decompile_dir)
     params, addURIs, UriParses, addJsIfs, methods = parse_smali(decompile_dir)
 
