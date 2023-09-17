@@ -8,6 +8,8 @@ import multiprocessing
 import functools
 import logging
 
+SERVER_ADDR =  "192.168.6.77"  # 현재 자신의 ip 주소에 맞게 주소를 설정해 해줘야지 서버가 정상적으로 작동 됩니다
+
 app = Flask(__name__)
 log = logging.getLogger('werkzeug')
 log.disabled = True
@@ -149,7 +151,9 @@ def redirect(hash):
     temp["redirect"] = True
     app.config["shm"][hash] = temp
     print(request.headers)
-    return ""
+    return "THIS IS A REDIRECT PAGE...!!!"
+    
+
 @app.route("/fetch/<hash>")
 def fetch(hash):
     res = "<html><script>\n"
@@ -188,12 +192,17 @@ def ret(hash):
     return ""
 deeplinks = []
 def adb(cmd):
-    return subprocess.check_output(
-    "C:\\adb\\platform-tools\\adb.exe %s" % cmd, # adb 사용할 거면 자신의 컴퓨터의 adb.exe의 경로에 맞게 경로를 수정해줘야함!!!
-    shell=True,
-    stderr=subprocess.STDOUT
-    )
-def open_deeplink(deeplink, sleep_time=3):
+    try:
+        return subprocess.check_output(
+        "C:\\adb\\platform-tools\\adb.exe %s" % cmd, # adb 사용할 거면 자신의 컴퓨터의 adb.exe의 경로에 맞게 경로를 수정해줘야함!!!
+        shell=True,
+        stderr=subprocess.STDOUT
+        )
+    except:
+        print('[!]Error Occured while executing deeplink command')
+        print('[!]Command:',cmd )
+        return b'Error'
+def open_deeplink(deeplink, sleep_time=2):
     stdout = adb("shell am start -a android.intent.action.VIEW -c android.intent.category.BROWSABLE -d \"%s\"" % (deeplink))
     if b"Error" in stdout:
         time.sleep(0.5)
@@ -205,7 +214,7 @@ def open_deeplink(deeplink, sleep_time=3):
     adb("shell input keyevent 3")
 def run_server(shm):
     app.config["shm"] = shm
-    app.run(host='0.0.0.0', port=8012)
+    app.run(host=SERVER_ADDR, port=8012)
 if __name__ == "__main__":
     manager = multiprocessing.Manager()
     shm = manager.dict()
@@ -213,8 +222,8 @@ if __name__ == "__main__":
     p.start()
     
     time.sleep(3)
-    addr = "0.0.0.0:8012"
-    apk = "C:\FindScheme\com.nhn.android.search.apk"    # APK 경로는 여기에서 설정!!!
+    addr = SERVER_ADDR+":8012"
+    apk = "C:\\FindScheme\\FindScheme\\apks\\happy.apk"    # APK 경로는 여기에서 설정!!!
     decompile_dir, _ = os.path.splitext(apk)
     print('decompile_dir:',decompile_dir)
     if not os.path.isdir(decompile_dir):
@@ -227,19 +236,21 @@ if __name__ == "__main__":
     deeplinks = parse_scheme(decompile_dir)
     params, addURIs, UriParses, addJsIfs, methods = parse_smali(decompile_dir)
 
-    print('deeplink:',deeplinks)
-    print('params:',params)
-    print('addURIs',addURIs)
-    print('UriParses',UriParses)
-    print('addJsIfs',addJsIfs)
-    print('methods',methods)
+    print('[*]deeplink:',deeplinks)
+    print('[*]params:',params)
+    print('[*]addURIs',addURIs)
+    print('[*]UriParses',UriParses)
+    print('[*]addJsIfs',addJsIfs)
+    print('[*]methods',methods)
+    
 
     for deeplink in deeplinks:
-        if "kakao" in deeplink or "naver" in deeplink: continue
+        if "http" in deeplink or "kakao" in deeplink or "naver" in deeplink: continue
         data = (str(time.time())+deeplink).encode()
         hash = hashlib.sha1(data).hexdigest()
         shm[hash] = {"deeplink": deeplink, "param": "", "redirect": False}
         dl = "{}=http://{}/redirect/{}".format(deeplink, addr, hash)
+        print('[*]deeplink:',dl)
         open_deeplink(dl)
         
         for param in params:
@@ -247,8 +258,14 @@ if __name__ == "__main__":
             hash = hashlib.sha1(data).hexdigest()
             shm[hash] = {"deeplink": deeplink, "param": param, "redirect": False}
             dl = "{}?{}=http://{}/redirect/{}".format(deeplink, param, addr, hash)
+            print('[*]deeplink+query:', dl)
             open_deeplink(dl)
-            
+    
+    print('[*]<shared_memory>\n',shm)
+    for key in shm:
+        if shm[key]['redirect']:
+            print('[O]Found!')
+            print(f'[{key}]{shm[key]}')
     redirect_result = list(shm)
     shm["jsif_func"] = list()
     for hash in redirect_result:
