@@ -239,7 +239,7 @@ def analyze_apk(apk_name):
     deeplinks = parse_scheme(decompile_dir)
     params, addURIs, UriParses, addJsIfs, methods = parse_smali(decompile_dir)
 
-    f = open(f'./output/{apk}.txt','w')
+    f = open(f'./output/{apk_name}.txt','w')
 
     print('[*]deeplink:',deeplinks)
     f.write(f'[*]deeplink:{deeplinks}\n')
@@ -284,13 +284,13 @@ def analyze_apk(apk_name):
     if(redirect_found):
         f = open('./result.txt','a')
         f.write('-'*40+'\n')
-        f.write(f'[{apk}]\n')
+        f.write(f'[{apk_name}]\n')
         for i in redirect_found:
             f.write(i+'\n')
     f.close()
 
     f = open('./analyzed_list.txt','a')
-    f.write(apk+'\n')
+    f.write(apk_name+'\n')
     f.close()
 
 if __name__ == "__main__":
