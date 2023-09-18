@@ -1,0 +1,10 @@
+[*]deeplink:['customerview://tophat_bundle']
+[*]params:['size', 'offset']
+[*]addURIs:[]
+[*]UriParses:[]
+[*]addJsIfs:[]
+[*]methods[]
+
+
+[*]<shared_memory>
+{'18e04ae3f8aa08e8f85363ec1ea07f3464c4e4da': {'deeplink': 'customerview://tophat_bundle', 'param': '', 'redirect': False}, '9d38596f49ad95da8f4ec9ec94892c6c2aac8ec6': {'deeplink': 'customerview://tophat_bundle', 'param': 'size', 'redirect': False}, '4f5fc422187cc8dda6c699e7b83aa46edde51af9': {'deeplink': 'customerview://tophat_bundle', 'param': 'offset', 'redirect': False}}

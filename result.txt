@@ -1,0 +1,3 @@
+----------------------------------------
+[com.musinsa.store]
+[b14177d9c5ece54975a7d9c307126ba4ae582cdf]{'deeplink': 'musinsafad://link', 'param': 'url', 'redirect': True}

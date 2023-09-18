@@ -1,0 +1,10 @@
+[*]deeplink:['http://', 'https://', 'bitwarden://']
+[*]params:['priority', 'extras', 'backendName', '(\\\\?)', '[\\\\s\\\\S]', 'displayName']
+[*]addURIs:[]
+[*]UriParses:[]
+[*]addJsIfs:[]
+[*]methods['invokeAction']
+
+
+[*]<shared_memory>
+{'5a4da91cfbbc41b6e385a5e41494625608032170': {'deeplink': 'bitwarden://', 'param': '', 'redirect': False}, 'c972302c6b58ea4b74b52d869ba99d74c3c97157': {'deeplink': 'bitwarden://', 'param': 'priority', 'redirect': False}, 'e942ca09ddcbbee3b65301069a6d71c7e40162e9': {'deeplink': 'bitwarden://', 'param': 'extras', 'redirect': False}, '62172e1e43888bc0062ea2bd182e9c0ef43fad91': {'deeplink': 'bitwarden://', 'param': 'backendName', 'redirect': False}, '98dd6cac81841b725b0d6db462690fbffaff04aa': {'deeplink': 'bitwarden://', 'param': '(\\\\?)', 'redirect': False}, 'b2646bc46750c12ab0105f579058d0c5cb1fe6bb': {'deeplink': 'bitwarden://', 'param': '[\\\\s\\\\S]', 'redirect': False}, 'e3b70e6cb973765676f778d60a49ca6a7272b823': {'deeplink': 'bitwarden://', 'param': 'displayName', 'redirect': False}}
