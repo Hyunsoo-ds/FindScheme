@@ -114,10 +114,9 @@ def parse_smali_file(file_path):
                     if var_list[1] in local_register and var_list[2] in local_register:
                         addJsIf.add(local_register[var_list[2]])
         except Exception as e:
-            print('Error occured..!!!')
+            print('Error occured.. While Extracting Deeplink.\n Please Check ADB status!!!')
             print(file_path, line)
             print(e)
-            exit()
     return list(param), list(addURI), list(UriParse), list(addJsIf), list(method)
  
 def parse_smali(decompile_dir):
