@@ -293,6 +293,9 @@ def analyze_apk(apk_name):
     f.write(apk_name+'\n')
     f.close()
 
+    adb('shell am force-stop '+package)
+    adb('adb uninstall '+ package)
+
 if __name__ == "__main__":
     
     folder_items = os.listdir('./apks/')
