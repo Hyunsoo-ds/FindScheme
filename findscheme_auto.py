@@ -8,7 +8,7 @@ import multiprocessing
 import functools
 import logging
 
-SERVER_ADDR =  "192.168.6.77"  # 현재 자신의 ip 주소에 맞게 주소를 설정해 해줘야지 서버가 정상적으로 작동 됩니다
+SERVER_ADDR =  "172.30.1.35"  # 현재 자신의 ip 주소에 맞게 주소를 설정해 해줘야지 서버가 정상적으로 작동 됩니다
 ADB_ADDR = "C:\\adb\\platform-tools\\adb.exe" # adb 사용할 거면 자신의 컴퓨터의 adb.exe의 경로에 맞게 경로를 수정해줘야함!!!
 
 app = Flask(__name__)
@@ -294,7 +294,7 @@ def analyze_apk(apk_name):
     f.close()
 
     adb('shell am force-stop '+package)
-    adb('adb uninstall '+ package)
+    adb('uninstall '+ package)
 
 if __name__ == "__main__":
     
