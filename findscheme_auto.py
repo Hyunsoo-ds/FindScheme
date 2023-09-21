@@ -242,7 +242,10 @@ def analyze_apk(apk_name):
         package = f.read().split("package=\"")[1].split("\"")[0]    
     print ("package name:", package)
     if len(adb("shell pm list packages %s" % package)) == 0:
-        adb("install %s" % (apk)) 
+        if(adb("install %s" % (apk))  == b'DEEP'):
+            f2 = open('./error_while_installing.txt','a')
+            f2.write(apk_name+', ')
+            f2.close()
     deeplinks = parse_scheme(decompile_dir)
     params, addURIs, UriParses, addJsIfs, methods = parse_smali(decompile_dir)
 
@@ -261,9 +264,11 @@ def analyze_apk(apk_name):
     print('[*]methods',methods)
     f.write(f'[*]methods{methods}\n')
     
+    blacklist_keywords = {"recaptcha","smsto","fbconnect", "http", "kakao", "naver"}
 
     for deeplink in deeplinks:
-        if "fbconnect" in deeplink or "http" in deeplink or "kakao" in deeplink or "naver" in deeplink: continue
+        if any(keyword in deeplink for keyword in blacklist_keywords):
+            continue
         data = (str(time.time())+deeplink).encode()
         hash = hashlib.sha1(data).hexdigest()
         shm[hash] = {"deeplink": deeplink, "param": "", "redirect": False}
@@ -272,7 +277,6 @@ def analyze_apk(apk_name):
         open_deeplink(dl)
         count = 0
         for param in params:
-
             data = (str(time.time())+deeplink+param).encode()
             hash = hashlib.sha1(data).hexdigest()
             shm[hash] = {"deeplink": deeplink, "param": param, "redirect": False}
