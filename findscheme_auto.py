@@ -210,6 +210,7 @@ def open_deeplink(deeplink, sleep_time=3):
         return True
     elif b"Warning" in stdout:
         time.sleep(0.5)
+        return True
     elif b'DEEP' in stdout:
         time.sleep(0.5)
         print('[?]Check ADB Status!!')
@@ -269,19 +270,25 @@ def analyze_apk(apk_name):
         dl = "{}=http://{}/redirect/{}".format(deeplink, addr, hash)
         print('[*]deeplink:',dl)
         open_deeplink(dl)
-        
+        count = 0
         for param in params:
-            count = 0
+
             data = (str(time.time())+deeplink+param).encode()
             hash = hashlib.sha1(data).hexdigest()
             shm[hash] = {"deeplink": deeplink, "param": param, "redirect": False}
             dl = "{}?{}=http://{}/redirect/{}".format(deeplink, param, addr, hash)
             print('[*]deeplink+query:', dl)
+
+            skip = False
+
             if(open_deeplink(dl)):
                 count +=1
-                if(count == 4):
+                if(count >= 4):
                     print('[!]Skipping current Scheme from the database!!')
-                    break
+                    skip = True
+            if(skip):
+                print('break!')
+                break
     
     print('[*]<shared_memory>\n',shm)
     f.writelines(f'\n\n[*]<shared_memory>\n{shm}')
