@@ -246,6 +246,7 @@ def analyze_apk(apk_name):
             f2 = open('./error_while_installing.txt','a')
             f2.write(apk_name+', ')
             f2.close()
+            return "Fail"
     deeplinks = parse_scheme(decompile_dir)
     params, addURIs, UriParses, addJsIfs, methods = parse_smali(decompile_dir)
 
