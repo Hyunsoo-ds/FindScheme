@@ -8,7 +8,7 @@ import multiprocessing
 import functools
 import logging
 
-SERVER_ADDR =  "172.30.1.35"  # 현재 자신의 ip 주소에 맞게 주소를 설정해 해줘야지 서버가 정상적으로 작동 됩니다
+SERVER_ADDR =  "192.168.6.228"  # 현재 자신의 ip 주소에 맞게 주소를 설정해 해줘야지 서버가 정상적으로 작동 됩니다
 ADB_ADDR = "C:\\adb\\platform-tools\\adb.exe" # adb 사용할 거면 자신의 컴퓨터의 adb.exe의 경로에 맞게 경로를 수정해줘야함!!!
 
 app = Flask(__name__)
@@ -201,17 +201,24 @@ def adb(cmd):
     except:
         print('[!]Error Occured while executing deeplink command')
         print('[!]Command:',cmd )
-        return b'Error'
+        return b'DEEP'
 def open_deeplink(deeplink, sleep_time=3):
     stdout = adb("shell am start -a android.intent.action.VIEW -c android.intent.category.BROWSABLE -d \"%s\"" % (deeplink))
     if b"Error" in stdout:
         time.sleep(0.5)
+        print('[->]No Reaction')
+        return True
     elif b"Warning" in stdout:
         time.sleep(0.5)
+    elif b'DEEP' in stdout:
+        time.sleep(0.5)
+        print('[?]Check ADB Status!!')
     else: 
         time.sleep(sleep_time)
  
     adb("shell input keyevent 3")
+    
+    return False
 def run_server(shm):
     app.config["shm"] = shm
     app.run(host=SERVER_ADDR, port=8012)
@@ -231,7 +238,7 @@ def analyze_apk(apk_name):
     if not os.path.isdir(decompile_dir):
         os.system("java -jar apktool.jar d %s -f --output %s" % (apk, decompile_dir))
     with open(os.path.join(decompile_dir, "AndroidManifest.xml"), encoding="UTF8") as f:
-        package = f.read().split("package=\"")[1].split("\"")[0]
+        package = f.read().split("package=\"")[1].split("\"")[0]    
     print ("package name:", package)
     if len(adb("shell pm list packages %s" % package)) == 0:
         adb("install %s" % (apk)) 
@@ -255,7 +262,7 @@ def analyze_apk(apk_name):
     
 
     for deeplink in deeplinks:
-        if "http" in deeplink or "kakao" in deeplink or "naver" in deeplink: continue
+        if "fbconnect" in deeplink or "http" in deeplink or "kakao" in deeplink or "naver" in deeplink: continue
         data = (str(time.time())+deeplink).encode()
         hash = hashlib.sha1(data).hexdigest()
         shm[hash] = {"deeplink": deeplink, "param": "", "redirect": False}
@@ -264,12 +271,17 @@ def analyze_apk(apk_name):
         open_deeplink(dl)
         
         for param in params:
+            count = 0
             data = (str(time.time())+deeplink+param).encode()
             hash = hashlib.sha1(data).hexdigest()
             shm[hash] = {"deeplink": deeplink, "param": param, "redirect": False}
             dl = "{}?{}=http://{}/redirect/{}".format(deeplink, param, addr, hash)
             print('[*]deeplink+query:', dl)
-            open_deeplink(dl)
+            if(open_deeplink(dl)):
+                count +=1
+                if(count == 4):
+                    print('[!]Skipping current Scheme from the database!!')
+                    break
     
     print('[*]<shared_memory>\n',shm)
     f.writelines(f'\n\n[*]<shared_memory>\n{shm}')
