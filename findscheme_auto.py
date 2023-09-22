@@ -8,7 +8,7 @@ import multiprocessing
 import functools
 import logging
 
-SERVER_ADDR =  "192.168.6.228"  # 현재 자신의 ip 주소에 맞게 주소를 설정해 해줘야지 서버가 정상적으로 작동 됩니다
+SERVER_ADDR =  "192.168.0.12"  # 현재 자신의 ip 주소에 맞게 주소를 설정해 해줘야지 서버가 정상적으로 작동 됩니다
 ADB_ADDR = "C:\\adb\\platform-tools\\adb.exe" # adb 사용할 거면 자신의 컴퓨터의 adb.exe의 경로에 맞게 경로를 수정해줘야함!!!
 
 app = Flask(__name__)
@@ -247,8 +247,15 @@ def analyze_apk(apk_name):
             f2.write(apk_name+', ')
             f2.close()
             return "Fail"
-    deeplinks = parse_scheme(decompile_dir)
-    params, addURIs, UriParses, addJsIfs, methods = parse_smali(decompile_dir)
+        
+    try:
+        deeplinks = parse_scheme(decompile_dir)
+        params, addURIs, UriParses, addJsIfs, methods = parse_smali(decompile_dir)
+    except:
+        f2 = open('./error_while_installing.txt','a')
+        f2.write(apk_name+', ')
+        f2.close()
+        return "Fail"
 
     f = open(f'./output/{apk_name}.txt','w')
 
@@ -265,7 +272,7 @@ def analyze_apk(apk_name):
     print('[*]methods',methods)
     f.write(f'[*]methods{methods}\n')
     
-    blacklist_keywords = {"recaptcha","smsto","fbconnect", "http", "kakao", "naver"}
+    blacklist_keywords = {"fb","recaptcha","smsto","fbconnect", "http", "kakao", "naver"}
 
     for deeplink in deeplinks:
         if any(keyword in deeplink for keyword in blacklist_keywords):
