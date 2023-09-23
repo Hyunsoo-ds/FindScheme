@@ -274,7 +274,7 @@ def analyze_apk(apk_name):
     print('[*]methods',methods)
     f.write(f'[*]methods{methods}\n')
     
-    blacklist_keywords = {"fb","recaptcha","smsto","fbconnect", "http", "kakao", "naver"}
+    blacklist_keywords = {"firebase","mailto","fb","recaptcha","smsto","fbconnect", "http", "kakao", "naver"}
 
     for deeplink in deeplinks:
         if any(keyword in deeplink for keyword in blacklist_keywords):
