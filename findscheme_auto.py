@@ -8,7 +8,7 @@ import multiprocessing
 import functools
 import logging
 
-SERVER_ADDR =  "192.168.0.12"  # 현재 자신의 ip 주소에 맞게 주소를 설정해 해줘야지 서버가 정상적으로 작동 됩니다
+SERVER_ADDR =  "192.168.6.48"  # 현재 자신의 ip 주소에 맞게 주소를 설정해 해줘야지 서버가 정상적으로 작동 됩니다
 ADB_ADDR = "C:\\adb\\platform-tools\\adb.exe" # adb 사용할 거면 자신의 컴퓨터의 adb.exe의 경로에 맞게 경로를 수정해줘야함!!!
 
 app = Flask(__name__)
@@ -142,6 +142,7 @@ def parse_smali(decompile_dir):
                 if deeplink in Uri:
                     UriParses.add(Uri)
                     break
+        print('Parsing Completed:',diretory)
  
     return list(params),list(addURIs),list(UriParses),list(addJsIfs),list(methods)
 
@@ -227,9 +228,10 @@ def run_server(shm):
 def analyze_apk(apk_name):
     manager = multiprocessing.Manager()
     shm = manager.dict()
+
     p = multiprocessing.Process(target=functools.partial(run_server, shm))
     p.start()
-    
+
     time.sleep(3)
 
     addr = SERVER_ADDR+":8012"
@@ -326,7 +328,10 @@ def analyze_apk(apk_name):
     adb('shell am force-stop '+package)
     adb('uninstall '+ package)
 
+    p.terminate()
+
 if __name__ == "__main__":
+
     
     folder_items = os.listdir('./apks/')
     file_names=[]
