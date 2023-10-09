@@ -397,11 +397,12 @@ def analyze_apk(APK_NAME):
     SHOW_PATH = False
     for node in deeplink_list:
         node.show(f)
+    """
     f.write(draw_line('<Path Analysis Result>') + '\n')
     SHOW_PATH = True
     for node in deeplink_list:
         node.show(f)
-
+    """
 
     end = time.time()
 
