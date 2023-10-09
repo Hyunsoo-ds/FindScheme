@@ -371,22 +371,25 @@ def analyze_apk(APK_NAME):
     target_to_find3 = ['Landroid/app/Activity;->getIntent()Landroid/content/Intent;',
                     'Landroid/content/Intent;->getDataString()Ljava/lang/String;',
                     'Ljava/lang/String;->replace(Ljava/lang/CharSequence;Ljava/lang/CharSequence;)Ljava/lang/String;']
-
-    params = list()
-    params1 = parse_method_and_params(target_to_find2, androguard_dx,1,1)
-    params += params1
-
-    params2 = parse_method_and_params(target_to_find1, androguard_dx,2,1)
-    for i in params2: 
-        i['query'] = i['query'].split('?')[1][:-1]
-    params += params2
-
-    params3 = parse_method_and_params(target_to_find3, androguard_dx, 2, 1)
-    for i in params3: 
-        i['query'] = i['query'].split('?')[1][:-1]
-    params += params3
-
     print('[*]Parsing Smali code')
+    try:
+        params = list()
+        params1 = parse_method_and_params(target_to_find2, androguard_dx,1,1)
+        params += params1
+
+        params2 = parse_method_and_params(target_to_find1, androguard_dx,2,1)
+        for i in params2: 
+            i['query'] = i['query'].split('?')[1][:-1]
+        params += params2
+
+        params3 = parse_method_and_params(target_to_find3, androguard_dx, 2, 1)
+        for i in params3: 
+            i['query'] = i['query'].split('?')[1][:-1]
+        params += params3
+    except :
+        print('[!]Error occured while parsing smali')
+
+    
     for param in params:
         recursive_search(androguard_dx, deeplink_list, param, RECURSION_DEPTH,target_to_find1)
 
