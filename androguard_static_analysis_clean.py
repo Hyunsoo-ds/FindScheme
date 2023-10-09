@@ -1,23 +1,9 @@
 from androguard.misc import *
 import time
-import multiprocessing
-from flask import Flask, request
-import os
-import subprocess
-import hashlib
-import logging
-import functools
-import socket
 
-SHOW_PATH = False
+SHOW_PATH = True
 RECURSION_DEPTH = 20
-SERVER_ADDR = socket.gethostbyname(socket.gethostname())
-print("[*]Hosting server:", SERVER_ADDR)
-ADB_ADDR = "adb" # adb 사용할 거면 자신의 컴퓨터의 adb.exe의 경로에 맞게 경로를 수정해줘야함!!!
-
-app = Flask(__name__)
-log = logging.getLogger('werkzeug')
-log.disabled = True
+APK_NAME = 'com.musinsa.store1.apk'
 
 class Node:
     total_node = 0
@@ -36,17 +22,17 @@ class Node:
         else:
             return False
         
-    def show(self,f):
-        p_write('-'*50,f)
-        p_write(f'[deeplink]: {self.deeplink}',f)
-        p_write(f'\t->[activity]: {self.activity}',f)
-
+    def show(self):
+        print('-'*100)
+        print(f'[deeplink]: {self.deeplink}')
+        print(f'\t->[activity]: {self.activity}')
         if self.query:
-            p_write(f'\t\t->[query]: {self.query}',f)
+            print(f'\t\t->[query]: {self.query}')
             if SHOW_PATH:
+                print('-'*47 + '<path>' + '-'*47)
                 for query in self.path:
                     for idx in range(len(self.path[query])):
-                        f.write(f'[{query}]\n{self.path[query][idx]}' + '\n')
+                        print(f'[{query}]\n{self.path[query][idx]}')
 
     def addQuery(self, q):
         if q not in self.query:
@@ -58,57 +44,17 @@ class Node:
         else:
             self.path[q].append(p)
 
-@app.route("/redirect/<hash>")
-def redirect(hash):
-    temp = app.config["shm"][hash]
-    temp["redirect"] = True
-    app.config["shm"][hash] = temp
-    print(request.headers)
-    return "THIS IS A REDIRECT PAGE...!!!"
 
-def adb(cmd):
-    try:
-        return subprocess.check_output(
-        ADB_ADDR+" %s" % cmd, 
-        shell=True,
-        stderr=subprocess.STDOUT
-        )
-    except:
-        print('[!]Error Occured while executing deeplink command')
-        print('[!]Command:',cmd )
-        return b'DEEP'
-
-def open_deeplink(deeplink, sleep_time=3):
-    stdout = adb("shell am start -a android.intent.action.VIEW -c android.intent.category.BROWSABLE -d \"%s\"" % (deeplink))
-    if b"Error" in stdout:
-        time.sleep(0.5)
-        print('[->]No Reaction')
-        return True
-    elif b"Warning" in stdout:
-        time.sleep(0.5)
-        return True
-    elif b'DEEP' in stdout:
-        time.sleep(0.5)
-        print('[?]Check ADB Status!!')
-    else: 
-        time.sleep(sleep_time)
- 
-    adb("shell input keyevent 3")
-    
-    return False
-
-def run_server(shm):
-    app.config["shm"] = shm
-    app.run(host=SERVER_ADDR, port=8012)
 
 def convert_smali_to_java(smali_string):
+    # "L"로 시작하고 ";"로 끝나는 경우만 변환
     if smali_string.startswith("L") and smali_string.endswith(";"):
-        smali_string = smali_string[1:-1].replace("/", ".")
-        
-    if '$' in smali_string:
-        smali_string = smali_string.split('$')[0]
-
-    return smali_string
+        # "L" 제거하고 "/"를 "."로 대체
+        java_string = smali_string[1:-1].replace("/", ".")
+        return java_string
+    else:
+        # 변환할 필요 없는 경우 원래 문자열 반환
+        return smali_string
     
 def parse_strings_xml(androguard_apk_obj):
     strings_dict ={}
@@ -119,6 +65,7 @@ def parse_strings_xml(androguard_apk_obj):
             value = string_values['DEFAULT'][string_id]
             strings_dict[string_id] = value
     return strings_dict
+
 
 def fn_get_class_method_desc_from_string(input_string):
     #  separated using '->'.
@@ -202,7 +149,8 @@ def parse_method_and_params(target, androguard_dx):
     param = list()
     for method_obj in remove_duplicate(method_objs[0].get_xref_from()):
         local_reg = dict()
-
+        #print(f'[[clas]: {method_obj[1].get_class_name()}')
+        #print(f'[method]: {method_obj[1].get_name(),method_obj[1].get_descriptor()}')  
         byte_code = method_obj[1].get_code() # DalvikCode
         if byte_code != None:
             byte_code = byte_code.get_bc() # DCode
@@ -210,6 +158,8 @@ def parse_method_and_params(target, androguard_dx):
             for i in byte_code.get_instructions():
                 ins_name = i.get_name()
                 ins_var = i.get_output().replace(" ", "")
+
+                #print(ins_name,'|',ins_var)
 
                 if ins_name == 'const-string': # const-string v4, 'edit'
                     first_comma_index = ins_var.find(',')
@@ -251,6 +201,7 @@ def remove_duplicate(xrefs):
 
     return result
 
+
 def recursive_search(androguard_dx, deeplink_list,  param, n,path):
 
     current_class = convert_smali_to_java(param['method'].get_class_name())
@@ -277,167 +228,46 @@ def recursive_search(androguard_dx, deeplink_list,  param, n,path):
 def get_deeplink_len(deeplink_list):
     s = 0
     for node in deeplink_list:
-        s += len(node.query)+1
+        s += len(node.query)
     
     return s
 
-def draw_line(title):
-    num = (50 - len(title))//2
-    return '-'*num + title + '-' * num
 
-def p_write(text, f):
-        print(text)
-        f.write(text + '\n')
-
-def analyze_apk(APK_NAME):
-    global SHOW_PATH
-
-    manager = multiprocessing.Manager()
-    shm = manager.dict()
-
-    p = multiprocessing.Process(target=functools.partial(run_server, shm))
-    p.start()
-
-    time.sleep(3)
-
-    addr = SERVER_ADDR+":8012"
-
+if __name__ == '__main__':
     start = time.time()
-    apk = "./apks/"+APK_NAME
-
-    decompile_dir, _ = os.path.splitext(apk)
-    print('[*]Decompile_dir:',decompile_dir)
-    print('[*]Analyzing APK...')
+    apk = "apks/"+APK_NAME
     androguard_apk_obj, androguard_d_array, androguard_dx= AnalyzeAPK(apk,session = None)
-    print('[*]APK Analyze completed..')
-
-    package = androguard_apk_obj.get_package() # package 이름 가져오기
-    print ("[*}package name:", package)
-
-    if len(adb("shell pm list packages %s" % package)) == 0: #스마트폰에 앱 설치
-        if(adb("install %s" % (apk))  == b'DEEP'):
-            f2 = open('./error_while_installing.txt','a')
-            f2.write(APK_NAME+', ')
-            f2.close()
-            p.terminate()
-
-            return "Fail"
-
-    start_parse = time.time()           # xml, smali 분석
+    print('[*]APK Analyzed completed..')
+    start_parse = time.time()
     strings_dict = parse_strings_xml(androguard_apk_obj)
     print('[*]Parsing string.xml')
     deeplink_list = parse_xml(androguard_apk_obj.get_android_manifest_xml(),strings_dict)
     print('[*]ParsingAndroidManifest.xml')
 
+
+    # for node in deeplink_list:
+    #     node.show()
     target_to_find = 'Landroid/net/Uri;->getQueryParameter(Ljava/lang/String;)Ljava/lang/String;'
     params = parse_method_and_params(target_to_find, androguard_dx)
     print('[*]Parsing Smali code')
+    # for i in params:
+    #     print('[query]',i['query'],':', i['method'].get_class_name())
+    #     print('[method]:', i['method'])
+    #     print(f"{i['method'].get_class_name()}->{i['method'].get_name()}{i['method'].get_descriptor()}".replace(" ",""))
+
+    #synchronize_with_node(deeplink_list, params)
+    #print('[*]Synchronizing....')
+
+    
     for param in params:
         recursive_search(androguard_dx, deeplink_list, param, RECURSION_DEPTH,target_to_find)
 
-
-
-    f = open(f'./output/{APK_NAME}.txt','w')
-
-    p_write(draw_line('<Analysis Result>'),f)
-
-    SHOW_PATH = False
     for node in deeplink_list:
-        node.show(f)
-    f.write(draw_line('<Path Analysis Result>') + '\n')
-    SHOW_PATH = True
-    for node in deeplink_list:
-        node.show(f)
-
-
+        node.show()
+    
     end = time.time()
 
-    total_length = get_deeplink_len(deeplink_list)
-
-    p_write(draw_line('<time>'),f)
-    p_write(f'[*]Duration: {end - start}s',f)
-    p_write(f'[*]Time Duration for Parsing: {end - start_parse}s',f)
-    p_write(f'[*]Esimated numbers of deeplink to test: {total_length}',f)
-    print(draw_line('<Redirect Test>'))
-
-    f.close()
-
-    adb(f"shell monkey -p {package} -c android.intent.category.LAUNCHER 1")
-    time.sleep(2)
-
-    blacklist_keywords = {"firebase","mailto","fb","recaptcha","smsto","fbconnect", "http", "kakao", "https"}
-
-    tested_number  = 0
-
-    for node in deeplink_list:
-        deeplink = node.deeplink
-        if any(keyword in deeplink for keyword in blacklist_keywords):
-            tested_number += len(node.query) + 1
-            continue
-        data = (str(time.time())+deeplink).encode()
-        hash = hashlib.sha1(data).hexdigest()
-        shm[hash] = {"deeplink": deeplink, "param": "", "redirect": False}
-        dl = "{}/http://{}/redirect/{}".format(deeplink, addr, hash)
-        tested_number +=1
-        print(f'[{round(tested_number/total_length*100,2)}%]deeplink:{dl}')
-        open_deeplink(dl)
-        count = 0
-
-        for param in node.query:
-            data = (str(time.time())+deeplink+param).encode()
-            hash = hashlib.sha1(data).hexdigest()
-            shm[hash] = {"deeplink": deeplink, "param": param, "redirect": False}
-            dl = "{}?{}=http://{}/redirect/{}".format(deeplink, param, addr, hash)
-            tested_number +=1
-            print(f'[{round(tested_number/total_length*100,2)}%]deeplink+query:{dl}')
-
-            skip = False
-            if(open_deeplink(dl)):
-                count +=1
-                if(count >= 4):
-                    print('[!]Skipping current Scheme from the database!!')
-                    skip = True
-            if(skip):
-                break
-
-    redirect_found = []
-    for key in shm:
-        if shm[key]['redirect']:
-            redirect_found.append(f'[{key}]{shm[key]}')
-
-    if(redirect_found):
-        f = open('./result.txt','a')
-        f.write('-'*40+'\n')
-        f.write(f'[{APK_NAME}]\n')
-        for i in redirect_found:
-            f.write(i+'\n')
-    f.close()
-
-    f = open('./analyzed_list.txt','a')
-    f.write(APK_NAME+'\n')
-    f.close()
-
-    adb('shell am force-stop '+package)
-    adb('uninstall '+ package)
-    p.terminate()
-    print(draw_line('<END>') + '\n\n\n')
-
-if __name__ == "__main__":
+    print('Duration:', end - start,'s')
+    print('Time Duration for Parsing:', end - start_parse,'s')
     
-    folder_items = os.listdir('./apks/')
-    file_names=[]
-
-    for item in folder_items:
-        item_path = os.path.join('./apks', item)
-        if os.path.isfile(item_path):
-            file_names.append(item)
-    
-    with open('./analyzed_list.txt','r') as file:
-        analyzed_apks = file.read()
-
-    for apk in file_names:
-        if not(apk[:-4] in analyzed_apks):
-            print('[*]apk:',apk[:-4])
-            analyze_apk(apk)
-    
-    print('done!!!')
+    print(get_deeplink_len(deeplink_list))

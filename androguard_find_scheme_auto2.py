@@ -149,6 +149,12 @@ def fn_get_class_method_desc_from_string(input_string):
     #  class name.
     else:
         class_part = input_string
+
+    if desc_part != '.':
+        desc_part = re.escape(desc_part)
+    class_part = re.escape(class_part)
+    method_part = re.escape(method_part)
+
     return [class_part, method_part, desc_part]
         
 def method_to_smali_string(method):
@@ -186,15 +192,20 @@ def parse_xml(android_manifest,strings_dict):
 
     return list(result)
 
-def parse_method_and_params(target, androguard_dx):
-    class_part, method_part, desc_part = fn_get_class_method_desc_from_string(target)
+def parse_method_and_params(target, androguard_dx,n,loc): # target이 list로 받아짐, list의 길이가 2이상인 경우에는 해당 순서를 만족하는 경우에만 파라미터 저장
+    sequence = 0
+
+
+    class_part, method_part, desc_part = fn_get_class_method_desc_from_string(target[sequence])
+
+    methods = []
+
+    for m in target:
+        methods.append(fn_get_class_method_desc_from_string(m)[1])
+
     
     method_objs = []
 
-    if desc_part != '.':
-        desc_part = re.escape(desc_part)
-    class_part = re.escape(class_part)
-    method_part = re.escape(method_part)
 
     for method in androguard_dx.find_methods(class_part, method_part, desc_part):
         method_objs.append(method)
@@ -217,17 +228,37 @@ def parse_method_and_params(target, androguard_dx):
                         reg = ins_var[:first_comma_index]
                         val= ins_var[first_comma_index+2:-1].strip()
                     local_reg[reg] = val
-                elif 'getQueryParameter' in ins_var: # {p1, v0}, Landroid/net/Uri;->getQueryParameter(Ljava/lang/String;)Ljava/lang/String;
+                
+                elif any(keyword in ins_var for keyword in methods):
+                #method_part in ins_var: # {p1, v0}, Landroid/net/Uri;->getQueryParameter(Ljava/lang/String;)Ljava/lang/String;
+                    current = 0
+                    #print('sequence:', sequence)
+                    for m in range(len(methods)):
+                        if methods[m] in ins_var:
+                            current = m
+                    #print('current:', current)
+                    #print('current_method:', methods[current])
+                    #print(draw_line('.'))
                     
-                    var = ins_var.split('getQueryParameter')[0].split(',')[:-1]
+                    if sequence == len(target) - 1 and current == len(target) - 1:
+                        #print('Foudn!!')
+                        var = ins_var.split(method_part)[0].split(',')[:-1]
 
-                    if len(var) == 2:
-                        key = var[1]
-                    else:
-                        continue
-                    if key in local_reg:
-                        param.append({'query':local_reg[key], 'method': method_obj[1]})  # 파라미터와 메소드를 같이 매치해서 저장
-            
+                        if len(var) == n+1:
+                            key = var[loc]
+                        else:
+                            continue
+                        if key in local_reg:
+                            #print('[query]:', local_reg[key])
+                            param.append({'query':local_reg[key], 'method': method_obj[1]})  # 파라미터와 메소드를 같이 매치해서 저장
+                        sequence = 0
+                        #input()
+                    
+                    if current < sequence:
+                        sequence = current+1
+                    elif current == sequence:
+                        sequence +=1 % len(target)
+                        
                 idx += i.get_length()
 
     return param
@@ -286,8 +317,9 @@ def draw_line(title):
     return '-'*num + title + '-' * num
 
 def p_write(text, f):
-        print(text)
-        f.write(text + '\n')
+    print(text)
+    f.write(text + '\n')
+
 
 def analyze_apk(APK_NAME):
     global SHOW_PATH
@@ -329,13 +361,34 @@ def analyze_apk(APK_NAME):
     deeplink_list = parse_xml(androguard_apk_obj.get_android_manifest_xml(),strings_dict)
     print('[*]ParsingAndroidManifest.xml')
 
-    target_to_find = 'Landroid/net/Uri;->getQueryParameter(Ljava/lang/String;)Ljava/lang/String;'
-    params = parse_method_and_params(target_to_find, androguard_dx)
+    target_to_find1 = ["Landroid/app/Activity;->getIntent()Landroid/content/Intent;",
+                    "Landroid/content/Intent;->getData()Landroid/net/Uri;", 
+                    "Landroid/net/Uri;->toString()Ljava/lang/String;", 
+                    "Ljava/lang/String;->replace(Ljava/lang/CharSequence;Ljava/lang/CharSequence;)Ljava/lang/String;"]
+
+    target_to_find2 = ['Landroid/net/Uri;->getQueryParameter(Ljava/lang/String;)Ljava/lang/String;']
+
+    target_to_find3 = ['Landroid/app/Activity;->getIntent()Landroid/content/Intent;',
+                    'Landroid/content/Intent;->getDataString()Ljava/lang/String;',
+                    'Ljava/lang/String;->replace(Ljava/lang/CharSequence;Ljava/lang/CharSequence;)Ljava/lang/String;']
+
+    params = list()
+    params1 = parse_method_and_params(target_to_find2, androguard_dx,1,1)
+    params += params1
+
+    params2 = parse_method_and_params(target_to_find1, androguard_dx,2,1)
+    for i in params2: 
+        i['query'] = i['query'].split('?')[1][:-1]
+    params += params2
+
+    params3 = parse_method_and_params(target_to_find3, androguard_dx, 2, 1)
+    for i in params3: 
+        i['query'] = i['query'].split('?')[1][:-1]
+    params += params3
+
     print('[*]Parsing Smali code')
     for param in params:
-        recursive_search(androguard_dx, deeplink_list, param, RECURSION_DEPTH,target_to_find)
-
-
+        recursive_search(androguard_dx, deeplink_list, param, RECURSION_DEPTH,target_to_find1)
 
     f = open(f'./output/{APK_NAME}.txt','w')
 
@@ -421,6 +474,8 @@ def analyze_apk(APK_NAME):
     adb('uninstall '+ package)
     p.terminate()
     print(draw_line('<END>') + '\n\n\n')
+
+
 
 if __name__ == "__main__":
     
