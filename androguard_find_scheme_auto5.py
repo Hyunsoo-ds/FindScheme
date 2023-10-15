@@ -168,32 +168,35 @@ def method_to_smali_string(method):
 def parse_xml(android_manifest,strings_dict):
     result = set()
 
-    for activity in android_manifest.iter("activity"):
-        for key in activity.attrib.keys():
-            if 'name' in key:
-                for data in activity.iter("data"):
-                    deeplink = ''
-                    for attr in data.attrib.keys(): 
-                        if 'scheme' in attr:
-                            scheme = data.attrib[attr]
+    try:
+        for activity in android_manifest.iter("activity"):
+            for key in activity.attrib.keys():
+                if 'name' in key:
+                    for data in activity.iter("data"):
+                        deeplink = ''
+                        for attr in data.attrib.keys(): 
+                            if 'scheme' in attr:
+                                scheme = data.attrib[attr]
 
-                            if "@" in scheme:
-                                scheme = strings_dict[int(scheme.split("@")[1],16)]
-                            deeplink += scheme + '://'
+                                if "@" in scheme:
+                                    scheme = strings_dict[int(scheme.split("@")[1],16)]
+                                deeplink += scheme + '://'  
 
-                        if 'host' in attr:
-                            host = data.attrib[attr]
+                            if 'host' in attr:
+                                host = data.attrib[attr]
 
-                            if "@" in host:
-                                host = strings_dict[int(host.split("@")[1],16)]
+                                if "@" in host:
+                                    host = strings_dict[int(host.split("@")[1],16)]
 
-                            if deeplink[-3:] == '://':
-                                deeplink += host
-                            else:
-                                print('ERROR! host before scheme')
-                    if(deeplink):
-                        class_name = activity.attrib[key]
-                        result.add(Node(class_name, deeplink))
+                                if deeplink[-3:] == '://':
+                                    deeplink += host
+                                else:
+                                    print('ERROR! host before scheme')
+                        if(deeplink):
+                            class_name = activity.attrib[key]
+                            result.add(Node(class_name, deeplink))
+    except:
+        print('Error occured while parsing xml file.')
 
     return list(result)
 
