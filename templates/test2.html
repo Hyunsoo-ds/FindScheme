@@ -44,12 +44,10 @@
             window_list.push(key)
         }
         
-        resultDiv.innerHTML  += 'window list<br>=================================================<br>'
-
+       
 
         for (var i = 0; i < window_list.length; i++) {
             var word = window_list[i];
-            resultDiv.innerHTML += word+' ';
             if (Xwords.indexOf(word) === -1) {
                 APPinterface.push(word);
             }
