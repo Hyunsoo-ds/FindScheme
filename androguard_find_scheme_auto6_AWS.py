@@ -568,12 +568,13 @@ def analyze_apk(APK_NAME,sess):
         open_deeplink(dl)
 
         for q in must_keywords:
-            data = (str(time.time())+deeplink).encode()
-            hash = hashlib.sha1(data).hexdigest()
-            shm[hash] = {"deeplink": deeplink, "param": q, "redirect": False}
-            dl = "{}?{}=http://{}/redirect/{}".format(deeplink, q, addr, hash)
-            print(f'[MUST]deeplink:{dl}')
-            open_deeplink(dl)
+            if q not in node.query:
+                data = (str(time.time())+deeplink).encode()
+                hash = hashlib.sha1(data).hexdigest()
+                shm[hash] = {"deeplink": deeplink, "param": q, "redirect": False}
+                dl = "{}?{}=http://{}/redirect/{}".format(deeplink, q, addr, hash)
+                print(f'[MUST]deeplink:{dl}')
+                open_deeplink(dl)
         count = 0
 
         for param in node.query:
