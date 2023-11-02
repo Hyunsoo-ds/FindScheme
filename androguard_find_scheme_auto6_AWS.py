@@ -546,6 +546,7 @@ def analyze_apk(APK_NAME,sess):
     time.sleep(2)
 
     blacklist_keywords = {"firebase","mailto","fb","recaptcha","smsto","fbconnect", "http", "kakao", "https"}
+    must_keywords = {"url","openurl","linkurl"}
 
     tested_number  = 0
 
@@ -565,6 +566,14 @@ def analyze_apk(APK_NAME,sess):
         tested_number +=1
         print(f'[{round(tested_number/total_length*100,2)}%]deeplink:{dl}')
         open_deeplink(dl)
+
+        for q in must_keywords:
+            data = (str(time.time())+deeplink).encode()
+            hash = hashlib.sha1(data).hexdigest()
+            shm[hash] = {"deeplink": deeplink, "param": q, "redirect": False}
+            dl = "{}?{}=http://{}/redirect/{}".format(deeplink, q, addr, hash)
+            print(f'[MUST]deeplink:{dl}')
+            open_deeplink(dl)
         count = 0
 
         for param in node.query:
