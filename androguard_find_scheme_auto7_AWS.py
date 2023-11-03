@@ -94,7 +94,7 @@ def result():
 
     res = divide_info(data_from_client)
     res['APKNAME'] = APKNAME
-    res['User'] = 'JW'
+    res['User'] = 'Tree'
     res['redir_url'] = deeplink
     send_to_aws(AWS_url,res)
 
