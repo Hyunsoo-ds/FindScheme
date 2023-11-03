@@ -42,6 +42,7 @@ def upload_apk_to_AWS():
     apklist = os.listdir(foldername)
     if(len(apklist)):
         for apk in apklist:
+            print(apk)
             file_path = f'{foldername}/{apk}'
             with open(file_path, 'rb') as file:
                 files = {'file': (f'{apk}', file)}
