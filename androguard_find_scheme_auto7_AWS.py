@@ -675,8 +675,7 @@ if __name__ == "__main__":
             try:
                 analyze_apk(apk,session)
             except Exception as e:
-                with open('something_error.txt', "a", encoding="utf-8") as file:
-                    file.write(f'{apk} Error with {e}\n')
+                JW.file_write('something_error.txt',f'{apk} Error with {e}')
                 pass
             #print('while:', gc.get_count())
             gc.collect()
