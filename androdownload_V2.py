@@ -101,7 +101,7 @@ def result():
     res['APKNAME'] = APKNAME
     res['User'] = 'yosimich'
     res['redir_url'] = deeplink
-    # send_to_aws(AWS_url,res)
+    send_to_aws(AWS_url,res)
 
     connect["connect"] = True
     app.config["JSItest"] = connect
