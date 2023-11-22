@@ -10,6 +10,13 @@ def folderchk(folder_dir):
     if not os.path.exists(folder_dir):
         os.mkdir(folder_dir)
 
+def filechk(file_name):
+    if not os.path.exists(file_name):
+        with open(file_name, 'w') as file:
+            print(f"The file '{file_name}' has been created.")
+            return True
+
+
 def apk_copy(apkname):
     try:
         foldername = 'success_apk'
@@ -27,7 +34,7 @@ def print_now():
     print(f"현재 시간: {current_time_str}")
 
 def file_write(file_name,write_data):
-    write_data = write_data+'/n'
+    write_data = write_data+'\n'
     if os.path.isfile(file_name):
         with open(file_name, "a", encoding="utf-8") as file:
             file.write(write_data)

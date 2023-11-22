@@ -1,0 +1,28 @@
+DEEPLINK : interparktourmain://execute?url=http://192.168.6.138:8012/t3
+window list
+=================================================
+window self document name location customElements history navigation locationbar menubar personalbar scrollbars statusbar toolbar status closed frames length top opener parent frameElement navigator origin external screen innerWidth innerHeight scrollX pageXOffset scrollY pageYOffset visualViewport screenX screenY outerWidth outerHeight devicePixelRatio clientInformation screenLeft screenTop styleMedia onsearch isSecureContext trustedTypes performance onappinstalled onbeforeinstallprompt crypto indexedDB sessionStorage localStorage onbeforexrselect onabort onbeforeinput onblur oncancel oncanplay oncanplaythrough onchange onclick onclose oncontextlost oncontextmenu oncontextrestored oncuechange ondblclick ondrag ondragend ondragenter ondragleave ondragover ondragstart ondrop ondurationchange onemptied onended onerror onfocus onformdata oninput oninvalid onkeydown onkeypress onkeyup onload onloadeddata onloadedmetadata onloadstart onmousedown onmouseenter onmouseleave onmousemove onmouseout onmouseover onmouseup onmousewheel onpause onplay onplaying onprogress onratechange onreset onresize onscroll onsecuritypolicyviolation onseeked onseeking onselect onslotchange onstalled onsubmit onsuspend ontimeupdate ontoggle onvolumechange onwaiting onwebkitanimationend onwebkitanimationiteration onwebkitanimationstart onwebkittransitionend onwheel onauxclick ongotpointercapture onlostpointercapture onpointerdown onpointermove onpointerrawupdate onpointerup onpointercancel onpointerover onpointerout onpointerenter onpointerleave onselectstart onselectionchange onanimationend onanimationiteration onanimationstart ontransitionrun ontransitionstart ontransitionend ontransitioncancel onafterprint onbeforeprint onbeforeunload onhashchange onlanguagechange onmessage onmessageerror onoffline ononline onpagehide onpageshow onpopstate onrejectionhandled onstorage onunhandledrejection onunload crossOriginIsolated scheduler alert atob blur btoa cancelAnimationFrame cancelIdleCallback captureEvents clearInterval clearTimeout close confirm createImageBitmap fetch find focus getComputedStyle getSelection matchMedia moveBy moveTo open postMessage print prompt queueMicrotask releaseEvents reportError requestAnimationFrame requestIdleCallback resizeBy resizeTo scroll scrollBy scrollTo setInterval setTimeout stop structuredClone webkitCancelAnimationFrame webkitRequestAnimationFrame originAgentCluster onorientationchange orientation credentialless oncontentvisibilityautostatechange onscrollend onbeforematch onbeforetoggle ontouchcancel ontouchend ontouchmove ontouchstart openDatabase LiveCommerce TalkInterface WebAppInterface android device makeplanInterface Xwords window_list APPinterface sendDataToServer i word TEMPORARY PERSISTENT addEventListener dispatchEvent removeEventListener 
+
+APPinterface list
+=================================================
+LiveCommerce TalkInterface WebAppInterface device makeplanInterface 
+
+Method LiveCommerce
+=================================================
+callLiveCommerceSubHome liveCommerceProduct openLiveCommercePlayer 
+
+Method TalkInterface
+=================================================
+openExternalBrowser openPopup openShopTalk openTalk openTalkNonMember openWebPage popBackStack 
+
+Method WebAppInterface
+=================================================
+appExternalLink appFbCustomAudiencePixel appFbLogEvent appGATrackingCode appGetNewInstallUserAdId appInAppBrowser appLocation appLogout appMap appNonMemberReservation appSetting appShare appSystemShare appWindowCallOpener appWindowClose appWindowOpen appboyEvents editMemberInfo imageUploadTrigger interparktv locationAuthorization onepayConfirm openOpenIdWeb openWebBrowser popBackStack pushList responsetoApp sendFormDataNewWebView systemFileShare 
+
+Method device
+=================================================
+appExternalLink appFbCustomAudiencePixel appFbLogEvent appGATrackingCode appGetNewInstallUserAdId appInAppBrowser appLocation appLogout appMap appNonMemberReservation appSetting appShare appSystemShare appWindowCallOpener appWindowClose appWindowOpen appboyEvents editMemberInfo imageUploadTrigger interparktv locationAuthorization onepayConfirm openOpenIdWeb openWebBrowser popBackStack pushList responsetoApp sendFormDataNewWebView systemFileShare 
+
+Method makeplanInterface
+=================================================
+appExternalLink appFbCustomAudiencePixel appFbLogEvent appGATrackingCode appGetNewInstallUserAdId appInAppBrowser appLocation appLogout appMap appNonMemberReservation appSetting appShare appSystemShare appWindowCallOpener appWindowClose appWindowOpen appboyEvents editMemberInfo imageUploadTrigger interparktv locationAuthorization onepayConfirm openOpenIdWeb openWebBrowser popBackStack pushList responsetoApp sendFormDataNewWebView systemFileShare 
