@@ -355,6 +355,7 @@ def get_deeplink_len(deeplink_list):
 
 def adb(cmd):
     try:
+        JW.check_adb_stat()
         return subprocess.check_output(
         ADB_ADDR+" %s" % cmd, 
         shell=True,
@@ -381,6 +382,6 @@ def open_deeplink(deeplink, sleep_time=3):
         time.sleep(sleep_time)
  
     adb("shell input keyevent 3")
-    adb("shell input keyevent 4")
+
     
     return False
