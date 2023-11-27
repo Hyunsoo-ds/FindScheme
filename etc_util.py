@@ -2,6 +2,7 @@ import shutil
 import os
 import datetime
 import requests
+import subprocess
 
 def log_error(e):
     file_write('something_error.txt',e)
@@ -55,6 +56,16 @@ def upload_apk_to_AWS():
                 files = {'file': (f'{apk}', file)}
                 response = requests.post(upload_url, files=files)
                 print(response.text)
+
+def check_adb_stat():
+    if b'\tdevice' not in subprocess.check_output('adb devices',shell=True):
+        print('!!! Trying to restart adb server !!!')
+        subprocess.run('adb kill-server')
+        if b'\tdevice' not in subprocess.check_output('adb devices',shell=True):
+            print('something wrong with your device or ADB')
+            exit()
+        else:
+            print("!!! restart Done !!!")
 
 if __name__ == '__main__':
     upload_apk_to_AWS()
