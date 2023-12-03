@@ -47,10 +47,13 @@ def result():
 
 @app.route("/redirect/<hash>")
 def redirect(hash):
-    temp = app.config["shm"][hash]
-    temp["redirect"] = True
-    app.config["shm"][hash] = temp
-    print(request.headers)
+    x_requested_with = request.headers.get("X-Requested-With")
+
+    if x_requested_with:
+        temp = app.config["shm"][hash]
+        temp["redirect"] = True
+        app.config["shm"][hash] = temp
+        
     return "THIS IS A REDIRECT PAGE...!!!"
 
 def divide_info(data_from_client):
