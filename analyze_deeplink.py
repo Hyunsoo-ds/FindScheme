@@ -95,15 +95,23 @@ def analyze_smali(androguard_dx,deeplink_list):
         params += params1
 
         params2 = parse_method_and_params(target_to_find1, androguard_dx,2,1)
+        real_params2  = list()
         for i in params2: 
-            i['query'] = i['query'].split('?')[1][:-1]
-        params += params2
+            if '?' in i:
+                i['query'] = i['query'].split('?')[1][:-1]
+                real_params2.append(i)
+        
+        params += real_params2
 
+        real_params3 = list()
         params3 = parse_method_and_params(target_to_find3, androguard_dx, 2, 1)
         for i in params3: 
-            i['query'] = i['query'].split('?')[1][:-1]
-        params += params3
-    except :
+            if '?' in i:
+                i['query'] = i['query'].split('?')[1][:-1]
+                real_params3.append(i)
+        params += real_params3
+    except Exception as e:
+        print(e)
         print('[!]Error occured while parsing smali')
 
     
@@ -184,7 +192,8 @@ def parse_xml(android_manifest,strings_dict):
                         if(deeplink):
                             class_name = activity.attrib[key]
                             result.add(Node(class_name, deeplink))
-    except:
+    except Exception as e:
+        print(e)
         print('Error occured while parsing xml file.')
 
     return list(result)
@@ -194,6 +203,7 @@ def parse_method_and_params(target, androguard_dx,n,loc): # target이 list로 �
 
 
     class_part, method_part, desc_part = fn_get_class_method_desc_from_string(target[sequence])
+    print(f"class_part:{class_part}, method_part:{method_part}, desc_part:{desc_part}")
 
     methods = []
 
@@ -203,60 +213,67 @@ def parse_method_and_params(target, androguard_dx,n,loc): # target이 list로 �
     
     method_objs = []
 
+    
 
     for method in androguard_dx.find_methods(class_part, method_part, desc_part):
         method_objs.append(method)
 
+    print('[DEBUG] method_objs:',method_objs)
+
     param = list()
-    for method_obj in remove_duplicate(method_objs[0].get_xref_from()):
-        local_reg = dict()
 
-        byte_code = method_obj[1].get_code() # DalvikCode
-        if byte_code != None:
-            byte_code = byte_code.get_bc() # DCode
-            idx = 0
-            for i in byte_code.get_instructions():
-                ins_name = i.get_name()
-                ins_var = i.get_output().replace(" ", "")
+    if method_objs:
+        for method_obj in remove_duplicate(method_objs[0].get_xref_from()):
+            local_reg = dict()
 
-                if ins_name == 'const-string': # const-string v4, 'edit'
-                    first_comma_index = ins_var.find(',')
-                    if first_comma_index != -1:
-                        reg = ins_var[:first_comma_index]
-                        val= ins_var[first_comma_index+2:-1].strip()
-                    local_reg[reg] = val
-                
-                elif any(keyword in ins_var for keyword in methods):
-                #method_part in ins_var: # {p1, v0}, Landroid/net/Uri;->getQueryParameter(Ljava/lang/String;)Ljava/lang/String;
-                    current = 0
-                    #print('sequence:', sequence)
-                    for m in range(len(methods)):
-                        if methods[m] in ins_var:
-                            current = m
-                    #print('current:', current)
-                    #print('current_method:', methods[current])
-                    #print(draw_line('.'))
+            byte_code = method_obj[1].get_code() # DalvikCode
+            if byte_code != None:
+                byte_code = byte_code.get_bc() # DCode
+                idx = 0
+                for i in byte_code.get_instructions():
+                    ins_name = i.get_name()
+                    ins_var = i.get_output().replace(" ", "")
+
+                    if ins_name == 'const-string': # const-string v4, 'edit'
+                        first_comma_index = ins_var.find(',')
+                        if first_comma_index != -1:
+                            reg = ins_var[:first_comma_index]
+                            val= ins_var[first_comma_index+2:-1].strip()
+                        local_reg[reg] = val
                     
-                    if sequence == len(target) - 1 and current == len(target) - 1:
-                        #print('Foudn!!')
-                        var = ins_var.split(method_part)[0].split(',')[:-1]
-
-                        if len(var) == n+1:
-                            key = var[loc]
-                        else:
-                            continue
-                        if key in local_reg:
-                            #print('[query]:', local_reg[key])
-                            param.append({'query':local_reg[key], 'method': method_obj[1]})  # 파라미터와 메소드를 같이 매치해서 저장
-                        sequence = 0
-                        #input()
-                    
-                    if current < sequence:
-                        sequence = current+1
-                    elif current == sequence:
-                        sequence +=1 % len(target)
+                    elif any(keyword in ins_var for keyword in methods):
+                    #method_part in ins_var: # {p1, v0}, Landroid/net/Uri;->getQueryParameter(Ljava/lang/String;)Ljava/lang/String;
+                        current = 0
+                        #print('sequence:', sequence)
+                        for m in range(len(methods)):
+                            if methods[m] in ins_var:
+                                current = m
+                        #print('current:', current)
+                        #print('current_method:', methods[current])
+                        #print(draw_line('.'))
                         
-                idx += i.get_length()
+                        if sequence == len(target) - 1 and current == len(target) - 1:
+                            #print('Foudn!!')
+                            var = ins_var.split(method_part)[0].split(',')[:-1]
+
+                            if len(var) == n+1:
+                                key = var[loc]
+                            else:
+                                continue
+                            if key in local_reg:
+                                #print('[query]:', local_reg[key])
+                                param.append({'query':local_reg[key], 'method': method_obj[1]})  # 파라미터와 메소드를 같이 매치해서 저장
+                            sequence = 0
+                            #input()
+                        
+                        if current < sequence:
+                            sequence = current+1
+                        elif current == sequence:
+                            sequence +=1 % len(target)
+                            
+                    idx += i.get_length()
+    else:
+        param = []
 
     return param
 
@@ -290,6 +307,7 @@ def fn_get_class_method_desc_from_string(input_string):
     #  class name.
     else:
         class_part = input_string
+        desc_part = None
 
     if desc_part != '.':
         desc_part = re.escape(desc_part)
