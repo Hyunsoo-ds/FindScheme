@@ -308,6 +308,7 @@ def fn_get_class_method_desc_from_string(input_string):
     else:
         class_part = input_string
         desc_part = ''
+        method_part = ''
     if desc_part :
         if desc_part != '.':
             desc_part = re.escape(desc_part)
