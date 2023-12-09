@@ -45,7 +45,7 @@ def file_write(file_name,write_data):
 
 def upload_apk_to_AWS():
     foldername = 'success_apk'
-    upload_url = 'http://43.200.177.231:5000/upload'
+    upload_url = 'http://3.37.70.237:5000/upload' 
     folderchk(foldername)
     apklist = os.listdir(foldername)
     if(len(apklist)):

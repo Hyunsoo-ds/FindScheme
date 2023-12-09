@@ -2,7 +2,7 @@ import socket
 from etc_util import folderchk, filechk
 
 USERNAME = 'JW'
-AWS_url = 'http://43.200.177.231:5000/add_data'
+AWS_url = 'http://3.37.70.237:5000/add_data'
 RECURSION_DEPTH = 10
 CACHE_DIR = 'apks'
 APK_PACKAGE_NAME_LIST = 'list.txt'
