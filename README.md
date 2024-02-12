@@ -96,8 +96,8 @@ You need a Android device connected to your computer through `ADB`  to use this 
             - So we can search recursively through call graph of related methods.
         - The purpose of recursive search is to check weather `param` is actually used in the Android activity connected to the deeplink.
     - By using the method above, we were able to significantly reduce the number of deeplinks that needed to be tested.
-        - The numbers of deeplinks needed to be tested decreased 92.24% on average compared to old method that test deeplink of every combinations.
-        - The time required for analysis and deeplink test also decreased 84.43% on average.
+        - The `number of deeplinks` needed to be tested decreased `92.24%` on average compared to old method that test deeplink of every combinations.
+        - The `time` required for analysis and deeplink test also decreased `84.43%` on average.
 
 ---
 
