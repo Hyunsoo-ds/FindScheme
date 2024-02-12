@@ -2,11 +2,12 @@
 
 ---
 
-`FindScheme` is used to find a `deeplink` that can be lead to `Webview Redirection vulnearbility` and extract `Javascript Interfac`e and `methods` of respective interface connected to valid deeplink. FindScheme enables more `efficient` and `accurate` deeplink extraction through `recursive search` logic we implemented.
+**FindScheme** is used to find a `deeplink` that can be lead to **Webview Redirection vulnearbility** and extract `Javascript Interface` and `methods` of respective interface connected to valid deeplink. FindScheme enables more **efficient** and **accurate** deeplink extraction through `recursive search` logic we implemented.
 
 FindScheme offers features such as APK download automation, static analysis for extracting deeplinks, javascript interfaces and webview redirection test with extracted deeplinks. These features flow and execute automatically in a ordered manner.
 
-- Since tool `FindScheme` was developed while project `BoB 12th Team project` , we used FindScheme to select Android apps for identifying WebView logical bugs.
+- Tool `FindScheme` was developed while project `BoB 12th Team project`
+    - we used FindScheme to select Android apps for identifying WebView logical bugs.
 - FindScheme use `Androguard` for static analysis of APK files.
     
     [GitHub - androguard/androguard: Reverse engineering and pentesting for Android applications](https://github.com/androguard/androguard)
