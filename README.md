@@ -31,7 +31,6 @@ You need a Android device connected to your computer through `ADB`  to use this 
 
 1. **Run main.py**
     
-    Usage
     
     ```
     python3 main.py
