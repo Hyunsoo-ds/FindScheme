@@ -1,3 +1,0 @@
-kr.co.millie.millieshelf
-com.musinsa.store
-com.hpapp
