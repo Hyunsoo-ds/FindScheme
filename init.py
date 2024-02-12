@@ -1,8 +1,8 @@
 import socket
 from etc_util import folderchk, filechk
 
-USERNAME = 'JW'
-AWS_url = 'http://3.37.70.237:5000/add_data'
+USERNAME = 'TEST'
+AWS_url = 'http://YOUR_AWS_ADDRESS:PORT/add_data' # Add your AWS Address
 RECURSION_DEPTH = 10
 CACHE_DIR = 'apks'
 APK_PACKAGE_NAME_LIST = 'list.txt'
