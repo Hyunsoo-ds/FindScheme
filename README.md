@@ -76,6 +76,23 @@ You need a Android device connected to your computer through `ADB`  to use this 
             Result_{PACKAGE_NAME}.txt
             ```
             
+        
+        ex)
+        
+        ```
+        DEEPLINK : fruit_webview://redirect?link
+        
+        APPinterface list
+        =================================================
+        AppleInterface1 BananaInterface2
+        
+        Method AppleInterface1
+        =================================================
+        Apple_method1 Apple_method2
+        
+        ...
+        ```
+        
 - FindScheme also have a feature to send result of analysis to the Database.
 
 ---
